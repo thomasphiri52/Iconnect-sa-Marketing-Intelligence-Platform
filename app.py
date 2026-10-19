@@ -1,3 +1,11 @@
+import os
+import sys
+
+# Ensure the project root is importable when Streamlit launches this file directly.
+_PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
+
 from v13_customer_360 import render_v13_customer_360
 from v12_collaboration import render_v12_collaboration
 from v11_enterprise_operations import render_v11_operations
@@ -155,6 +163,15 @@ with c3:
     st.button("⚙ Settings", key="settings_top", on_click=lambda: go("Settings"))
 
 # ---------- Screens ----------
+def _render_dashboard_safely():
+    try:
+        dashboard()
+    except Exception as exc:
+        st.error("Dashboard display error")
+        st.warning("The dashboard failed to render, but the application is still running.")
+        with st.expander("Show technical details"):
+            st.code(f"{type(exc).__name__}: {exc}")
+
 def dashboard():
     st.markdown('<div class="section-title">Welcome back, Thomas 👋</div>', unsafe_allow_html=True)
     d1,d2 = st.columns([4,1])
@@ -564,7 +581,7 @@ def monitor_page():
 
 # ---------- Routing ----------
 p=st.session_state.page
-if p=="Dashboard": dashboard()
+if p=="Dashboard": _render_dashboard_safely()
 elif p=="Command Centre": command_centre()
 elif p=="Campaigns": campaigns_page()
 elif p=="Audience Intelligence": audience_page()
